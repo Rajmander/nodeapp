@@ -11,6 +11,15 @@ import User from "./user.model.js";
 import { createUserValidator } from "./validators/user.validator.js";
 import { validate } from "./middlewares/validation.js";
 
+app.get("/api/v1/users/single", async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: "rajmander1@gmail.com" });
+    res.json({ data: user });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
 app.get("/api/v1/users", async (req, res, next) => {
   const userData = await User.find({
     $or: [{ deletedAt: null }, { username: "ram singh" }],
@@ -29,6 +38,18 @@ app.get("/api/v1/users/:id", async (req, res, next) => {
   const user = await User.findById({ _id: userId });
   res.json({ data: user });
 });
+
+// Demo find by id and update
+app.put("/api/v1/users/:id", async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    await User.findByIdAndUpdate({ _id: id }, { username: "maggi kha le 555" });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+// Find One
 
 app.post("/users", createUserValidator, validate, async (req, res, next) => {
   const { username, email, password, mobile } = req.body;
