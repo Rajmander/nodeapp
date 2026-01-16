@@ -20,6 +20,11 @@ app.get("/api/v1/users/single", async (req, res, next) => {
   }
 });
 
+// Demo findOneAndUpdate
+app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
+  console.log("/api/v1/users/demofindOneAndUpdate");
+});
+
 app.get("/api/v1/users", async (req, res, next) => {
   const userData = await User.find({
     $or: [{ deletedAt: null }, { username: "ram singh" }],
