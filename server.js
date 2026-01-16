@@ -11,6 +11,25 @@ import User from "./user.model.js";
 import { createUserValidator } from "./validators/user.validator.js";
 import { validate } from "./middlewares/validation.js";
 
+app.get("/api/v1/users", async (req, res, next) => {
+  const userData = await User.find({
+    $or: [{ deletedAt: null }, { username: "ram singh" }],
+  })
+    .select("id username email")
+    .skip(0)
+    .limit(2);
+  res.json({ data: userData, count: userData.length });
+
+  res.json({ msg: "/api/v1/users" });
+});
+
+// DEMO FIND BY ID
+app.get("/api/v1/users/:id", async (req, res, next) => {
+  const userId = req.params.id;
+  const user = await User.findById({ _id: userId });
+  res.json({ data: user });
+});
+
 app.post("/users", createUserValidator, validate, async (req, res, next) => {
   const { username, email, password, mobile } = req.body;
   try {
@@ -34,7 +53,9 @@ app.post("/users", createUserValidator, validate, async (req, res, next) => {
     });
 
     const user = await userObj.save();
-    res.status(201).json({ data: user, msg: "User created successfully" });
+    const safeObj = user.toObject();
+    delete safeObj.password;
+    res.status(201).json({ data: safeObj, msg: "User created successfully" });
   } catch (e) {
     res.status(500).json({
       error: `${e.toString()}`,
