@@ -22,7 +22,7 @@ app.get("/api/v1/users/single", async (req, res, next) => {
 
 // Demo findOneAndUpdate
 app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
-  console.log("/api/v1/users/demofindOneAndUpdatelife");
+  console.log("/api/v1/users/demofindOneAndUpdatelifeq");
 });
 
 app.get("/api/v1/users", async (req, res, next) => {
