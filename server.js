@@ -22,7 +22,7 @@ app.get("/api/v1/users/single", async (req, res, next) => {
 
 // Demo findOneAndUpdate
 app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
-  console.log("/api/v1/users/demofindOneAndUpdate");
+  console.log("/api/v1/users/demofindOneAndUpdatelife");
 });
 
 app.get("/api/v1/users", async (req, res, next) => {
@@ -99,7 +99,7 @@ app.post("/", (req, res, next) => {
 app.put("/", async (req, res, next) => {
   await User.findByIdAndUpdate(
     { _id: "6968929c1a60075a4084b6fe" },
-    { isDeleted: false, deletedAt: null, isActive: false }
+    { isDeleted: false, deletedAt: null, isActive: false },
   );
 
   res.json({ msg: "put method" });
