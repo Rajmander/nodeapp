@@ -59,7 +59,7 @@ app.put("/", async (req, res, next) => {
 });
 
 app.delete("/", (req, res, next) => {
-  res.json({ msg: "delete method" });
+  res.json({ msg: "delete method1" });
 });
 
 app.listen(5000, () => {
