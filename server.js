@@ -34,7 +34,7 @@ app.get("/api/v1/users", async (req, res, next) => {
     .limit(2);
   res.json({ data: userData, count: userData.length });
 
-  res.json({ msg: "/api/v1/users" });
+  //res.json({ msg: "/api/v1/users" });
 });
 
 // DEMO FIND BY ID
