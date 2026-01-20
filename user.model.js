@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       enum: ROLES,
       default: "customer",
     },
+    salary: {
+      type: Number,
+      min: 0,
+    },
     tags: {
       type: [String],
       default: [],
@@ -51,7 +55,7 @@ const userSchema = new mongoose.Schema(
     versionKey: false,
     timestamps: true,
     strict: "throw",
-  }
+  },
 );
 
 userSchema.index({ username: 1 }, { unique: true });

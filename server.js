@@ -16,11 +16,28 @@ import { validate } from "./middlewares/validation.js";
 app.get("/demoagg", async (req, res, next) => {
   const data = await User.aggregate([
     {
-      $group: { _id: "$roles", usersCount: { $sum: 1 } },
+      $match: { isActive: true, deletedAt: null },
     },
-    { $project: { _id: 0, role: "$_id", count: "$usersCount" } },
+    {
+      $unwind: "$roles",
+    },
+    {
+      $group: {
+        _id: "$roles",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+
+        roleName: "$_id",
+        roleCount: "$count",
+      },
+    },
   ]);
-  console.log(">>>>>>>>>>>>>>>", data);
+  //console.log(">>>>>>>>>>>>>>>", data);
+  res.json({ data });
 });
 
 app.get("/api/v1/users/single", async (req, res, next) => {
@@ -69,7 +86,7 @@ app.put("/api/v1/users/:id", async (req, res, next) => {
 // Find One
 
 app.post("/users", createUserValidator, validate, async (req, res, next) => {
-  const { username, email, password, mobile } = req.body;
+  const { username, email, password, mobile, salary, roles } = req.body;
   try {
     const exists = await User.countDocuments({
       $or: [{ username }, { email }, { mobile }],
@@ -88,6 +105,8 @@ app.post("/users", createUserValidator, validate, async (req, res, next) => {
       email: email,
       password: hashedPassword,
       mobile: mobile,
+      salary: salary,
+      roles: roles,
     });
 
     const user = await userObj.save();
