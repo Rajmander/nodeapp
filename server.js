@@ -16,23 +16,14 @@ import { validate } from "./middlewares/validation.js";
 app.get("/demoagg", async (req, res, next) => {
   const data = await User.aggregate([
     {
-      $match: { isActive: true, deletedAt: null },
-    },
-    {
-      $unwind: "$roles",
-    },
-    {
-      $group: {
-        _id: "$roles",
-        count: { $sum: 1 },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-
-        roleName: "$_id",
-        roleCount: "$count",
+      $facet: {
+        totalUsers: [{ $count: "count" }],
+        activeUsers: [{ $match: { isActive: true } }, { $count: "count" }],
+        inActiveUsers: [{ $match: { isActive: false } }, { $count: "count" }],
+        maxSalary: [
+          { $group: { _id: null, maxsal: { $max: "$salary" } } },
+          { $project: { _id: 0 } },
+        ],
       },
     },
   ]);
