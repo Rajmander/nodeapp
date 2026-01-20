@@ -11,6 +11,18 @@ import User from "./user.model.js";
 import { createUserValidator } from "./validators/user.validator.js";
 import { validate } from "./middlewares/validation.js";
 
+// DEMO AGGREGATION
+
+app.get("/demoagg", async (req, res, next) => {
+  const data = await User.aggregate([
+    {
+      $group: { _id: "$roles", usersCount: { $sum: 1 } },
+    },
+    { $project: { _id: 0, role: "$_id", count: "$usersCount" } },
+  ]);
+  console.log(">>>>>>>>>>>>>>>", data);
+});
+
 app.get("/api/v1/users/single", async (req, res, next) => {
   try {
     const user = await User.findOne({ email: "rajmander1@gmail.com" });
