@@ -44,7 +44,7 @@ app.get("/");
 
 // Demo findOneAndUpdate
 app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
-  console.log("i am good");
+  res.json({ msg: "what i catch" });
 });
 
 app.get("/api/v1/users", async (req, res, next) => {
