@@ -46,12 +46,16 @@ const userSchema = new mongoose.Schema(
       type: Date, // null = Active Record Date = Soft Deleted
       default: null,
     },
+    salary: {
+      type: Number,
+      min: 0,
+    },
   },
   {
     versionKey: false,
     timestamps: true,
     strict: "throw",
-  }
+  },
 );
 
 userSchema.index({ username: 1 }, { unique: true });
