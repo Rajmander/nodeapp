@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
       enum: ROLES,
       default: "customer",
     },
+    salary: {
+      type: Number,
+      min: 0,
+    },
     tags: {
       type: [String],
       default: [],

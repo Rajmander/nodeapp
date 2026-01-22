@@ -11,6 +11,26 @@ import User from "./user.model.js";
 import { createUserValidator } from "./validators/user.validator.js";
 import { validate } from "./middlewares/validation.js";
 
+// DEMO AGGREGATION
+
+app.get("/demoagg", async (req, res, next) => {
+  const data = await User.aggregate([
+    {
+      $facet: {
+        totalUsers: [{ $count: "count" }],
+        activeUsers: [{ $match: { isActive: true } }, { $count: "count" }],
+        inActiveUsers: [{ $match: { isActive: false } }, { $count: "count" }],
+        maxSalary: [
+          { $group: { _id: null, maxsal: { $max: "$salary" } } },
+          { $project: { _id: 0 } },
+        ],
+      },
+    },
+  ]);
+  //console.log(">>>>>>>>>>>>>>>", data);
+  res.json({ data });
+});
+
 app.get("/api/v1/users/single", async (req, res, next) => {
   try {
     const user = await User.find();
@@ -20,23 +40,11 @@ app.get("/api/v1/users/single", async (req, res, next) => {
   }
 });
 
+app.get("/");
+
 // Demo findOneAndUpdate
 app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
-  try {
-    let userData = await User.findOne({ email: "test1@gmail.com" });
-
-    userData.deletedAt = null;
-    userData.isActive = true;
-    let savedUser = await userData.save();
-
-    if (savedUser) {
-      console.log("Done");
-    } else {
-      console.log("Nope");
-    }
-  } catch (e) {
-    console.log("Error in updation", e);
-  }
+  res.json({ msg: "what i catch" });
 });
 
 app.get("/api/v1/users", async (req, res, next) => {
@@ -100,6 +108,7 @@ app.post("/users", createUserValidator, validate, async (req, res, next) => {
       password: hashedPassword,
       mobile: mobile,
       salary: salary,
+      roles: roles,
     });
 
     const user = await userObj.save();
