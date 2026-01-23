@@ -142,12 +142,32 @@ app.delete("/", (req, res, next) => {
   res.json({ msg: "delete method1" });
 });
 
-// $porject
-app.get("/cheap", async (req, res, next) => {
+app.get("/dream", async (req, res, next) => {
   const data = await User.aggregate([
     {
+      $group: {
+        _id: null,
+        active: { $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] } },
+        inActive: { $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] } },
+      },
+    },
+  ]);
+  res.json({ msg: data });
+});
+
+// $poject
+app.get("/cheap", async (req, res, next) => {
+  const data = await User.aggregate([
+    { $match: { isActive: true } },
+    {
       $addFields: {
-        annualSalary: { $multiply: ["$salary", 12] },
+        annualSalary: {
+          $cond: {
+            if: { $and: [{ $gt: ["$salary", 7000] }, { isActive: true }] },
+            then: "Good",
+            else: "Bad",
+          },
+        },
       },
     },
     {
