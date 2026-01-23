@@ -88,7 +88,7 @@ app.get("/demo", async (req, res, next) => {
 // Find One
 
 app.post("/users", createUserValidator, validate, async (req, res, next) => {
-  const { username, email, password, mobile, salary } = req.body;
+  const { username, email, password, mobile, salary, roles } = req.body;
   try {
     const exists = await User.countDocuments({
       $or: [{ username }, { email }, { mobile }],
