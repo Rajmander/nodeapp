@@ -146,9 +146,15 @@ app.delete("/", (req, res, next) => {
 app.get("/cheap", async (req, res, next) => {
   const data = await User.aggregate([
     {
+      $addFields: {
+        annualSalary: { $multiply: ["$salary", 12] },
+      },
+    },
+    {
       $project: {
         myid: "$_id",
         _id: 0,
+        annualSalary1: "$annualSalary",
       },
     },
   ]);
