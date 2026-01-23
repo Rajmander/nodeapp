@@ -142,6 +142,19 @@ app.delete("/", (req, res, next) => {
   res.json({ msg: "delete method1" });
 });
 
+// $porject
+app.get("/cheap", async (req, res, next) => {
+  const data = await User.aggregate([
+    {
+      $project: {
+        myid: "$_id",
+      },
+    },
+  ]);
+
+  res.json({ msg: data });
+});
+
 app.listen(5000, () => {
   console.log("Server is running...");
 });
