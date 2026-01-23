@@ -148,6 +148,7 @@ app.get("/cheap", async (req, res, next) => {
     {
       $project: {
         myid: "$_id",
+        _id: 0,
       },
     },
   ]);
