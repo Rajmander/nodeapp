@@ -6,181 +6,185 @@ app.use(express.json());
 import dbConnect from "./dbConnect.js";
 import bcrypt from "bcrypt";
 
-// IMPORT USER MODEL
-import User from "./user.model.js";
-import { createUserValidator } from "./validators/user.validator.js";
-import { validate } from "./middlewares/validation.js";
+import route from "./routes.js";
 
-// DEMO AGGREGATION
+app.use("/api/v1", route);
 
-app.get("/demoagg", async (req, res, next) => {
-  const data = await User.aggregate([
-    {
-      $facet: {
-        totalUsers: [{ $count: "count" }],
-        activeUsers: [{ $match: { isActive: true } }, { $count: "count" }],
-        inActiveUsers: [{ $match: { isActive: false } }, { $count: "count" }],
-        maxSalary: [
-          { $group: { _id: null, maxsal: { $max: "$salary" } } },
-          { $project: { _id: 0 } },
-        ],
-      },
-    },
-  ]);
-  //console.log(">>>>>>>>>>>>>>>", data);
-  res.json({ data });
-});
+// // IMPORT USER MODEL
+// import User from "./user.model.js";
+// import { createUserValidator } from "./validators/user.validator.js";
+// import { validate } from "./middlewares/validation.js";
 
-app.get("/api/v1/users/single", async (req, res, next) => {
-  try {
-    const user = await User.find();
-    res.json({ data: user });
-  } catch (e) {
-    console.log(e);
-  }
-});
+// // DEMO AGGREGATION
 
-app.get("/");
+// app.get("/demoagg", async (req, res, next) => {
+//   const data = await User.aggregate([
+//     {
+//       $facet: {
+//         totalUsers: [{ $count: "count" }],
+//         activeUsers: [{ $match: { isActive: true } }, { $count: "count" }],
+//         inActiveUsers: [{ $match: { isActive: false } }, { $count: "count" }],
+//         maxSalary: [
+//           { $group: { _id: null, maxsal: { $max: "$salary" } } },
+//           { $project: { _id: 0 } },
+//         ],
+//       },
+//     },
+//   ]);
+//   //console.log(">>>>>>>>>>>>>>>", data);
+//   res.json({ data });
+// });
 
-// Demo findOneAndUpdate
-app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
-  res.json({ msg: "what i catch" });
-});
+// app.get("/api/v1/users/single", async (req, res, next) => {
+//   try {
+//     const user = await User.find();
+//     res.json({ data: user });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// });
 
-app.get("/api/v1/users", async (req, res, next) => {
-  const userData = await User.find({
-    $or: [{ deletedAt: null }, { username: "ram singh" }],
-  })
-    .select("id username email")
-    .skip(0)
-    .limit(2);
-  res.json({ data: userData, count: userData.length });
+// app.get("/");
 
-  //res.json({ msg: "/api/v1/users" });
-});
+// // Demo findOneAndUpdate
+// app.put("/api/v1/users/demofindOneAndUpdate", async (req, res, next) => {
+//   res.json({ msg: "what i catch" });
+// });
 
-// DEMO FIND BY ID
-app.get("/api/v1/users/:id", async (req, res, next) => {
-  const userId = req.params.id;
-  const user = await User.findById({ _id: userId });
-  res.json({ data: user });
-});
+// app.get("/api/v1/users", async (req, res, next) => {
+//   const userData = await User.find({
+//     $or: [{ deletedAt: null }, { username: "ram singh" }],
+//   })
+//     .select("id username email")
+//     .skip(0)
+//     .limit(2);
+//   res.json({ data: userData, count: userData.length });
 
-// Demo find by id and update
-app.put("/api/v1/users/:id", async (req, res, next) => {
-  const { id } = req.params;
-  try {
-    await User.findByIdAndUpdate({ _id: id }, { username: "maggi kha le 555" });
-  } catch (e) {
-    console.log(e);
-  }
-});
+//   //res.json({ msg: "/api/v1/users" });
+// });
 
-// demo aggregate
-app.get("/demo", async (req, res, next) => {
-  const user = await User.aggregate([
-    //{ $group: { _id: null, maxSalary: { $avg: "$salary" } } },
-    { $count: "counts" },
-  ]);
-  res.json({ data: user });
-});
+// // DEMO FIND BY ID
+// app.get("/api/v1/users/:id", async (req, res, next) => {
+//   const userId = req.params.id;
+//   const user = await User.findById({ _id: userId });
+//   res.json({ data: user });
+// });
 
-// Find One
+// // Demo find by id and update
+// app.put("/api/v1/users/:id", async (req, res, next) => {
+//   const { id } = req.params;
+//   try {
+//     await User.findByIdAndUpdate({ _id: id }, { username: "maggi kha le 555" });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// });
 
-app.post("/users", createUserValidator, validate, async (req, res, next) => {
-  const { username, email, password, mobile, salary, roles } = req.body;
-  try {
-    const exists = await User.countDocuments({
-      $or: [{ username }, { email }, { mobile }],
-    });
+// // demo aggregate
+// app.get("/demo", async (req, res, next) => {
+//   const user = await User.aggregate([
+//     //{ $group: { _id: null, maxSalary: { $avg: "$salary" } } },
+//     { $count: "counts" },
+//   ]);
+//   res.json({ data: user });
+// });
 
-    if (exists > 0) {
-      return res.json({
-        data: [],
-        msg: "Username or mobile or email already exists",
-      });
-    }
-    const hashedPassword = await bcrypt.hash(password, 8);
+// // Find One
 
-    const userObj = new User({
-      username: username,
-      email: email,
-      password: hashedPassword,
-      mobile: mobile,
-      salary: salary,
-      roles: roles,
-    });
+// app.post("/users", createUserValidator, validate, async (req, res, next) => {
+//   const { username, email, password, mobile, salary, roles } = req.body;
+//   try {
+//     const exists = await User.countDocuments({
+//       $or: [{ username }, { email }, { mobile }],
+//     });
 
-    const user = await userObj.save();
-    const safeObj = user.toObject();
-    delete safeObj.password;
-    res.status(201).json({ data: safeObj, msg: "User created successfully" });
-  } catch (e) {
-    res.status(500).json({
-      error: `${e.toString()}`,
-      data: [],
-      msg: `Error while user creation`,
-    });
-  }
-});
+//     if (exists > 0) {
+//       return res.json({
+//         data: [],
+//         msg: "Username or mobile or email already exists",
+//       });
+//     }
+//     const hashedPassword = await bcrypt.hash(password, 8);
 
-app.post("/", (req, res, next) => {
-  console.log("post method");
-  res.json({ msg: "post method" });
-});
+//     const userObj = new User({
+//       username: username,
+//       email: email,
+//       password: hashedPassword,
+//       mobile: mobile,
+//       salary: salary,
+//       roles: roles,
+//     });
 
-app.put("/", async (req, res, next) => {
-  await User.findByIdAndUpdate(
-    { _id: "6968929c1a60075a4084b6fe" },
-    { isDeleted: false, deletedAt: null, isActive: false },
-  );
+//     const user = await userObj.save();
+//     const safeObj = user.toObject();
+//     delete safeObj.password;
+//     res.status(201).json({ data: safeObj, msg: "User created successfully" });
+//   } catch (e) {
+//     res.status(500).json({
+//       error: `${e.toString()}`,
+//       data: [],
+//       msg: `Error while user creation`,
+//     });
+//   }
+// });
 
-  res.json({ msg: "put method" });
-});
+// app.post("/", (req, res, next) => {
+//   console.log("post method");
+//   res.json({ msg: "post method" });
+// });
 
-app.delete("/", (req, res, next) => {
-  res.json({ msg: "delete method1" });
-});
+// app.put("/", async (req, res, next) => {
+//   await User.findByIdAndUpdate(
+//     { _id: "6968929c1a60075a4084b6fe" },
+//     { isDeleted: false, deletedAt: null, isActive: false },
+//   );
 
-app.get("/dream", async (req, res, next) => {
-  const data = await User.aggregate([
-    {
-      $group: {
-        _id: null,
-        active: { $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] } },
-        inActive: { $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] } },
-      },
-    },
-  ]);
-  res.json({ msg: data });
-});
+//   res.json({ msg: "put method" });
+// });
 
-// $poject
-app.get("/cheap", async (req, res, next) => {
-  const data = await User.aggregate([
-    { $match: { isActive: true } },
-    {
-      $addFields: {
-        annualSalary: {
-          $cond: {
-            if: { $and: [{ $gt: ["$salary", 7000] }, { isActive: true }] },
-            then: "Good",
-            else: "Bad",
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        myid: "$_id",
-        _id: 0,
-        annualSalary1: "$annualSalary",
-      },
-    },
-  ]);
+// app.delete("/", (req, res, next) => {
+//   res.json({ msg: "delete method1" });
+// });
 
-  res.json({ msg: data });
-});
+// app.get("/dream", async (req, res, next) => {
+//   const data = await User.aggregate([
+//     {
+//       $group: {
+//         _id: null,
+//         active: { $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] } },
+//         inActive: { $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] } },
+//       },
+//     },
+//   ]);
+//   res.json({ msg: data });
+// });
+
+// // $poject
+// app.get("/cheap", async (req, res, next) => {
+//   const data = await User.aggregate([
+//     { $match: { isActive: true } },
+//     {
+//       $addFields: {
+//         annualSalary: {
+//           $cond: {
+//             if: { $and: [{ $gt: ["$salary", 7000] }, { isActive: true }] },
+//             then: "Good",
+//             else: "Bad",
+//           },
+//         },
+//       },
+//     },
+//     {
+//       $project: {
+//         myid: "$_id",
+//         _id: 0,
+//         annualSalary1: "$annualSalary",
+//       },
+//     },
+//   ]);
+
+//   res.json({ msg: data });
+// });
 
 app.listen(5000, () => {
   console.log("Server is running...");
