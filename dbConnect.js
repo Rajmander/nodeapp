@@ -10,7 +10,9 @@ const db = async () => {
     );
 
     console.log("connected");
-  } catch (e) {}
+  } catch (e) {
+    console.log("not connected", e);
+  }
 };
 
 export default db();
