@@ -2,10 +2,10 @@ import User from "../user.model.js";
 
 export const getUsers = async (req, res, next) => {
   try {
-    const user = await User.find();
-    return res.json({ data: user });
+    const users = await User.aggregate([{ $match: {} }]);
+    return res.json({ msg: users });
   } catch (e) {
-    return res.json({ data: [] });
+    return res.json({ data: e.message });
   }
 };
 
