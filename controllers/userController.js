@@ -1,3 +1,4 @@
+import orderModel from "../order.model.js";
 import User from "../user.model.js";
 
 // ********** Demo insertMany ********** //
@@ -69,11 +70,64 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
+// Get orders
+export const getOrdersAllUsers = async (req, res, next) => {
+  const usersWithOrders = await User.aggregate([
+    {
+      $lookup: {
+        from: "orders",
+        let: { uId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$userId", "$$uId"] },
+                  { $lte: ["$amount", 5000] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "orders",
+      },
+    },
+    {
+      $match: { orders: { $ne: [] } },
+    },
+  ]);
+
+  const returnedCount = usersWithOrders.length;
+
+  res
+    .status(200)
+    .json({ data: usersWithOrders, meta: { returned: returnedCount } });
+};
+
+// Make order
+export const makeOrder = async (req, res, next) => {
+  try {
+    const order = new orderModel();
+    order.userId = "697ee4516f921886ef5efb6b";
+    order.amount = 5000;
+    const orderDetails = await order.save();
+
+    if (orderDetails) {
+      res.json({ msg: "Order created successfully" });
+    }
+  } catch (e) {
+    res.json({ msg: "Something went wrong while new order" });
+  }
+};
 export const demoMatchStage = async (request, response, next) => {
   const allData = await User.aggregate([
     {
-      $match: {
-        createdAt: { $gt: new Date("2026-01-18"), $lt: new Date("2026-02-28") },
+      $unwind: "$tags",
+    },
+    {
+      $group: {
+        _id: "$tags",
+        count: { $sum: 1 },
       },
     },
   ]);
