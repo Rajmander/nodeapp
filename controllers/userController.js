@@ -76,25 +76,15 @@ export const getOrdersAllUsers = async (req, res, next) => {
     {
       $lookup: {
         from: "orders",
-        let: { uId: "$_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$userId", "$$uId"] },
-                  { $lte: ["$amount", 5000] },
-                ],
-              },
-            },
-          },
-        ],
+        localField: "_id",
+        foreignField: "userId",
         as: "orders",
       },
     },
     {
-      $match: { orders: { $ne: [] } },
+      $match: { "orders.amount": { $gt: 500 } },
     },
+    { $unwind: "$orders" },
   ]);
 
   const returnedCount = usersWithOrders.length;
@@ -109,7 +99,9 @@ export const makeOrder = async (req, res, next) => {
   try {
     const order = new orderModel();
     order.userId = "697ee4516f921886ef5efb6b";
-    order.amount = 5000;
+    order.amount = 10000;
+    order.orderNumber = "IO";
+    order.netAmount = 10000;
     const orderDetails = await order.save();
 
     if (orderDetails) {
